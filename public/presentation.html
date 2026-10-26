@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yetkazib berish shartnomasi tizimi</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  /* ── Slides ── */
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 48px 64px;
+    opacity: 0;
+    transform: translateX(60px);
+    transition: opacity .45s ease, transform .45s ease;
+    pointer-events: none;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+  }
+  .slide.exit {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  /* ── Slide 1 – Cover ── */
+  .cover { background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 60%); }
+  .cover .badge {
+    background: #3b82f6;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 99px;
+    margin-bottom: 28px;
+  }
+  .cover h1 {
+    font-size: 52px;
+    font-weight: 800;
+    text-align: center;
+    line-height: 1.15;
+    background: linear-gradient(90deg, #60a5fa, #a78bfa, #34d399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+  }
+  .cover p {
+    font-size: 18px;
+    color: #94a3b8;
+    text-align: center;
+    max-width: 560px;
+  }
+  .cover .stack {
+    margin-top: 40px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .cover .stack span {
+    background: #1e293b;
+    border: 1px solid #334155;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #cbd5e1;
+    font-weight: 600;
+  }
+
+  /* ── Section header ── */
+  h2.section-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #3b82f6;
+    margin-bottom: 16px;
+  }
+  h3.slide-title {
+    font-size: 36px;
+    font-weight: 800;
+    margin-bottom: 32px;
+    color: #f1f5f9;
+  }
+
+  /* ── Cards grid ── */
+  .cards {
+    display: grid;
+    gap: 16px;
+    width: 100%;
+    max-width: 960px;
+  }
+  .cards.cols-2 { grid-template-columns: 1fr 1fr; }
+  .cards.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .cards.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+  .card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 14px;
+    padding: 22px 24px;
+  }
+  .card .icon { font-size: 28px; margin-bottom: 10px; }
+  .card h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: #f1f5f9; }
+  .card p  { font-size: 13px; color: #94a3b8; line-height: 1.6; }
+  .card.accent { border-color: #3b82f6; }
+  .card.green  { border-color: #22c55e; }
+  .card.purple { border-color: #a78bfa; }
+  .card.amber  { border-color: #f59e0b; }
+
+  /* ── Code block ── */
+  .code-block {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 24px 28px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 13.5px;
+    line-height: 1.8;
+    width: 100%;
+    max-width: 760px;
+  }
+  .code-block .kw  { color: #a78bfa; }
+  .code-block .fn  { color: #60a5fa; }
+  .code-block .str { color: #34d399; }
+  .code-block .cmt { color: #475569; }
+  .code-block .num { color: #f59e0b; }
+
+  /* ── Flow diagram ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    max-width: 920px;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 12px;
+  }
+  .flow-step {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 14px 20px;
+    text-align: center;
+    min-width: 130px;
+  }
+  .flow-step .step-num {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #475569;
+    margin-bottom: 4px;
+  }
+  .flow-step .step-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #e2e8f0;
+  }
+  .flow-step .step-sub {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 2px;
+  }
+  .flow-arrow {
+    font-size: 22px;
+    color: #334155;
+    padding: 0 6px;
+  }
+  .flow-step.active-step { border-color: #3b82f6; }
+  .flow-step.done-step   { border-color: #22c55e; }
+
+  /* ── Table ── */
+  table.nice {
+    width: 100%;
+    max-width: 860px;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  table.nice th {
+    background: #1e293b;
+    color: #94a3b8;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #334155;
+  }
+  table.nice td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #1e293b;
+    color: #cbd5e1;
+  }
+  table.nice tr:last-child td { border-bottom: none; }
+  table.nice tr:hover td { background: #1e293b44; }
+  .badge-role {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .role-red    { background: #450a0a44; color: #f87171; border: 1px solid #7f1d1d88; }
+  .role-purple { background: #2e1065aa; color: #c084fc; border: 1px solid #6b21a888; }
+  .role-green  { background: #052e1644; color: #4ade80; border: 1px solid #14532d88; }
+  .role-orange { background: #431407aa; color: #fb923c; border: 1px solid #7c2d1288; }
+
+  /* ── Big stat ── */
+  .stats {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 920px;
+    width: 100%;
+  }
+  .stat-box {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 28px 36px;
+    text-align: center;
+    min-width: 160px;
+  }
+  .stat-box .stat-num {
+    font-size: 48px;
+    font-weight: 900;
+    background: linear-gradient(90deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stat-box .stat-label {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  /* ── Checklist ── */
+  .checklist { max-width: 720px; width: 100%; list-style: none; }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid #1e293b;
+    font-size: 15px;
+    color: #cbd5e1;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist .ck { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .checklist .ck-done  { color: #22c55e; }
+  .checklist .ck-warn  { color: #f59e0b; }
+
+  /* ── Formula box ── */
+  .formula {
+    background: #0f172a;
+    border: 1px solid #475569;
+    border-radius: 12px;
+    padding: 24px 32px;
+    text-align: center;
+    max-width: 700px;
+    width: 100%;
+    margin-bottom: 24px;
+  }
+  .formula .f-label { font-size: 11px; color: #475569; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+  .formula .f-eq {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f1f5f9;
+    font-family: 'Courier New', monospace;
+  }
+  .formula .f-eq .hl { color: #f59e0b; }
+  .formula .f-eq .hl2 { color: #60a5fa; }
+
+  /* ── Navigation ── */
+  #nav {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 99px;
+    padding: 10px 20px;
+    z-index: 100;
+  }
+  #nav button {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background .15s, color .15s;
+  }
+  #nav button:hover { background: #334155; color: #f1f5f9; }
+  #nav button:disabled { opacity: .25; cursor: not-allowed; }
+  #nav .page-info { font-size: 13px; color: #64748b; min-width: 52px; text-align: center; font-weight: 600; }
+
+  /* dots */
+  #dots {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 100;
+  }
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 99px;
+    background: #334155;
+    transition: background .3s, width .3s;
+  }
+  .dot.on { background: #3b82f6; width: 20px; }
+
+  /* keyboard hint */
+  #hint {
+    position: fixed;
+    bottom: 36px;
+    right: 48px;
+    font-size: 11px;
+    color: #334155;
+  }
+
+  /* wide content */
+  .content { max-width: 920px; width: 100%; }
+  .text-center { text-align: center; }
+  .mt-2 { margin-top: 16px; }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 920px;
+    width: 100%;
+  }
+
+  .highlight-row {
+    display: flex;
+    gap: 16px;
+    max-width: 920px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .highlight-row .hl-box {
+    flex: 1;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: #94a3b8;
+  }
+  .highlight-row .hl-box strong { color: #f1f5f9; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════ SLIDE 1 – COVER ══════════════════════ -->
+<div class="slide active cover" id="s1">
+  <div class="badge">Laravel · Blade · SQLite · bcmath</div>
+  <h1>Yetkazib berish<br>Shartnomasi Tizimi</h1>
+  <p>Davlat tashkiloti uchun tovar sotib olish, yetkazish, jarima va buxgalteriya boshqaruvi</p>
+  <div class="stack">
+    <span>PHP 8.3</span>
+    <span>Laravel 13</span>
+    <span>SQLite</span>
+    <span>Tailwind CSS</span>
+    <span>Alpine.js</span>
+    <span>PHPUnit 12</span>
+    <span>bcmath</span>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 2 – PROBLEM ══════════════════════ -->
+<div class="slide" id="s2">
+  <h2 class="section-title">Vaziyat</h2>
+  <h3 class="slide-title">Nima qilindi?</h3>
+  <div class="cards cols-3" style="max-width:900px">
+    <div class="card accent">
+      <div class="icon">📋</div>
+      <h4>Shartnoma yuritish</h4>
+      <p>Qoralama → Faol → Yakunlangan. Pullik va bonus tovar alohida. Faollashtirish tizimi.</p>
+    </div>
+    <div class="card purple">
+      <div class="icon">⚠️</div>
+      <h4>Jarima hisoblash</h4>
+      <p>Kechikish uchun 0.5%/kun, 50% cheki. bcmath — float yo'q. Boshliq tasdiqlaydi.</p>
+    </div>
+    <div class="card green">
+      <div class="icon">💰</div>
+      <h4>Buxgalteriya</h4>
+      <p>To'lov bosqichlari, smeta (byudjet) nazorati, to'lovni bekor qilish, reestr.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 3 – CONTRACT FLOW ══════════════════════ -->
+<div class="slide" id="s3">
+  <h2 class="section-title">Shartnoma jarayoni</h2>
+  <h3 class="slide-title">Holat ketma-ketligi</h3>
+
+  <div class="flow" style="margin-bottom: 36px;">
+    <div class="flow-step">
+      <div class="step-num">1-holat</div>
+      <div class="step-label">📝 Qoralama</div>
+      <div class="step-sub">Tahrir mumkin</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step active-step">
+      <div class="step-num">2-holat</div>
+      <div class="step-label">✅ Faol</div>
+      <div class="step-sub">Qatorlar qotib qoladi</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step done-step">
+      <div class="step-num">3-holat</div>
+      <div class="step-label">🏁 Yakunlangan</div>
+      <div class="step-sub">Avtomatik</div>
+    </div>
+  </div>
+
+  <div class="cards cols-2" style="max-width:760px">
+    <div class="card">
+      <div class="icon">🔒</div>
+      <h4>Faollashtirish qoidasi</h4>
+      <p>Kamida 1 tovar qatori bo'lishi shart. Faollashtirilgandan keyin qatorlar o'zgartirib bo'lmaydi.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🤖</div>
+      <h4>Avtomatik yakunlash</h4>
+      <p>Barcha pullik tovar yetkazib berilganda shartnoma o'zi <strong>Yakunlangan</strong> holatiga o'tadi.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 4 – PENALTY ══════════════════════ -->
+<div class="slide" id="s4">
+  <h2 class="section-title">Jarima moduli</h2>
+  <h3 class="slide-title">Hisoblash formulasi</h3>
+
+  <div class="formula">
+    <div class="f-label">Har kun uchun</div>
+    <div class="f-eq">
+      jarima = <span class="hl">kelmagan_summa</span> × <span class="hl2">0.5%</span>
+    </div>
+  </div>
+
+  <div class="formula">
+    <div class="f-label">Limit (hech qachon oshmasin)</div>
+    <div class="f-eq">
+      max = <span class="hl">muddat_kunidag_kelmagan_summa</span> × <span class="hl2">50%</span>
+    </div>
+  </div>
+
+  <div class="highlight-row" style="margin-top:8px">
+    <div class="hl-box"><strong>Misol 1:</strong> 3 kun, hech narsa kelmagan → <strong style="color:#f59e0b">37.50</strong></div>
+    <div class="hl-box"><strong>Misol 2:</strong> 600 dona 14-martda → <strong style="color:#f59e0b">35.00</strong></div>
+    <div class="hl-box"><strong>Qoida:</strong> Yetkazish sanasi X → <strong>X+1 kundan</strong> hisobga olinadi</div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 5 – PAYMENT STAGES ══════════════════════ -->
+<div class="slide" id="s5">
+  <h2 class="section-title">Buxgalteriya</h2>
+  <h3 class="slide-title">To'lov bosqichlari</h3>
+
+  <table class="nice" style="margin-bottom:24px">
+    <thead>
+      <tr>
+        <th>Bosqich</th>
+        <th>Foiz</th>
+        <th>Summa (misol)</th>
+        <th>Shart</th>
+        <th>Holat</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Avans</strong></td>
+        <td>30%</td>
+        <td>750.00</td>
+        <td>Shartnoma faollashgandan keyin</td>
+        <td><span class="badge-role role-orange">Rejalashtirilgan</span></td>
+      </tr>
+      <tr>
+        <td><strong>Yetkazib berish</strong></td>
+        <td>70%</td>
+        <td>1 750.00</td>
+        <td>Pullik tovar to'liq kelgandan keyin</td>
+        <td><span class="badge-role role-purple">To'lashga tayyor</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="highlight-row">
+    <div class="hl-box"><strong>Holat qo'lda o'zgartirilmaydi</strong> — reestr yozuvlaridan qayta hisoblanadi</div>
+    <div class="hl-box"><strong>5 ta tartibli tekshiruv</strong> — birinchi xatoda to'xtaydi, aniq xabar beradi</div>
+    <div class="hl-box"><strong>Void pattern</strong> — to'lov hech qachon o'chirilmaydi, is_voided=true</div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 6 – 5 CHECKS ══════════════════════ -->
+<div class="slide" id="s6">
+  <h2 class="section-title">PaymentService</h2>
+  <h3 class="slide-title">5 tartibli tekshiruv</h3>
+
+  <div class="flow" style="flex-direction: column; align-items: stretch; max-width: 680px;">
+    <div class="flow-step" style="display:flex; align-items:center; gap:16px; min-width:unset;">
+      <span style="font-size:22px;width:36px;text-align:center">1️⃣</span>
+      <div><div style="font-weight:700;color:#f1f5f9">Shartnoma holati</div><div style="font-size:12px;color:#64748b">Faol yoki Yakunlangan bo'lishi kerak</div></div>
+    </div>
+    <div style="height:1px;background:#1e293b;margin:4px 0"></div>
+    <div class="flow-step" style="display:flex; align-items:center; gap:16px; min-width:unset;">
+      <span style="font-size:22px;width:36px;text-align:center">2️⃣</span>
+      <div><div style="font-weight:700;color:#f1f5f9">Bosqich sharti</div><div style="font-size:12px;color:#64748b">Tovar to'liq kelganmi / shartnoma faolmi?</div></div>
+    </div>
+    <div style="height:1px;background:#1e293b;margin:4px 0"></div>
+    <div class="flow-step" style="display:flex; align-items:center; gap:16px; min-width:unset;">
+      <span style="font-size:22px;width:36px;text-align:center">3️⃣</span>
+      <div><div style="font-weight:700;color:#f1f5f9">Oldingi bosqich</div><div style="font-size:12px;color:#64748b">Avans to'liq to'lanmaguncha yetkazib berish yo'q</div></div>
+    </div>
+    <div style="height:1px;background:#1e293b;margin:4px 0"></div>
+    <div class="flow-step" style="display:flex; align-items:center; gap:16px; min-width:unset;">
+      <span style="font-size:22px;width:36px;text-align:center">4️⃣</span>
+      <div><div style="font-weight:700;color:#f1f5f9">Summa chegarasi</div><div style="font-size:12px;color:#64748b">0 dan katta, bosqich qoldig'idan oshmasin</div></div>
+    </div>
+    <div style="height:1px;background:#1e293b;margin:4px 0"></div>
+    <div class="flow-step" style="display:flex; align-items:center; gap:16px; min-width:unset;">
+      <span style="font-size:22px;width:36px;text-align:center">5️⃣</span>
+      <div><div style="font-weight:700;color:#f1f5f9">Smeta qoldig'i</div><div style="font-size:12px;color:#64748b">Sana moliyaviy yilga mos + byudjet qoldig'i yetarli</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 7 – ROLES ══════════════════════ -->
+<div class="slide" id="s7">
+  <h2 class="section-title">Ruxsatlar (server-side)</h2>
+  <h3 class="slide-title">4 ta rol</h3>
+
+  <table class="nice">
+    <thead>
+      <tr>
+        <th>Rol</th>
+        <th>Login</th>
+        <th>Imkoniyatlar</th>
+        <th>Cheklovlar</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge-role role-red">🛡️ Super Admin</span></td>
+        <td style="font-family:monospace;font-size:12px">admin@admin.com</td>
+        <td>Hamma narsa</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><span class="badge-role role-purple">👔 Boshliq</span></td>
+        <td style="font-family:monospace;font-size:12px">boshliq@demo.test</td>
+        <td>Jarimani tasdiqlash, foydalanuvchilar</td>
+        <td>To'lovga tega olmaydi</td>
+      </tr>
+      <tr>
+        <td><span class="badge-role role-green">💼 Buxgalter</span></td>
+        <td style="font-family:monospace;font-size:12px">buxgalter@demo.test</td>
+        <td>To'lov kiritish, bekor qilish, smeta</td>
+        <td>Shartnoma o'zgartira olmaydi</td>
+      </tr>
+      <tr>
+        <td><span class="badge-role role-orange">👷 Ijrochi</span></td>
+        <td style="font-family:monospace;font-size:12px">ijrochi@demo.test</td>
+        <td>O'z shartnomalarini yaratish, partiya kiritish</td>
+        <td>Boshqa ijrochi shartnomasi ko'rinmaydi</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="mt-2" style="font-size:13px;color:#475569;text-align:center">
+    Parol barchangiz uchun: <span style="color:#94a3b8;font-family:monospace">password</span> &nbsp;|&nbsp; Super Admin: <span style="color:#94a3b8;font-family:monospace">admin123</span>
+  </p>
+</div>
+
+<!-- ══════════════════════ SLIDE 8 – TECH DECISIONS ══════════════════════ -->
+<div class="slide" id="s8">
+  <h2 class="section-title">Texnik qarorlar</h2>
+  <h3 class="slide-title">Muammolar va yechimlar</h3>
+
+  <div class="cards cols-2" style="max-width:860px">
+    <div class="card accent">
+      <div class="icon">🔢</div>
+      <h4>Float yo'q — bcmath</h4>
+      <p>Barcha pul operatsiyalari <code style="color:#60a5fa;font-size:12px">bcadd/bcsub/bcmul</code>. Yaxlitlash: <code style="color:#60a5fa;font-size:12px">+0.005 → floor</code> (half-up). <code style="color:#f59e0b;font-size:12px">sum()</code> SQL float qaytaradi — pluck+bcadd ishlatildi.</p>
+    </div>
+    <div class="card purple">
+      <div class="icon">🔒</div>
+      <h4>Bir vaqtda ishlash</h4>
+      <p><code style="color:#a78bfa;font-size:12px">DB::transaction + lockForUpdate()</code> — ikkita buxgalter bir vaqtda so'nggi smeta qoldig'ini ishlatsa, faqat biri o'tadi.</p>
+    </div>
+    <div class="card green">
+      <div class="icon">📅</div>
+      <h4>Carbon mutation xatosi</h4>
+      <p><code style="color:#34d399;font-size:12px">addDays()</code> original obyektni mutate qiladi. Har yerda <code style="color:#34d399;font-size:12px">->copy()->addDays()</code> ishlatildi.</p>
+    </div>
+    <div class="card amber">
+      <div class="icon">🗂️</div>
+      <h4>Reestr o'zgarmasligi</h4>
+      <p>To'lov hech qachon o'chirilmaydi. <code style="color:#f59e0b;font-size:12px">is_voided=true</code> + sabab. Holat va qoldiqlar har safar reestrdan qayta hisoblanadi.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 9 – TESTS ══════════════════════ -->
+<div class="slide" id="s9">
+  <h2 class="section-title">Sifat</h2>
+  <h3 class="slide-title">Testlar va ko'rsatkichlar</h3>
+
+  <div class="stats" style="margin-bottom:28px">
+    <div class="stat-box">
+      <div class="stat-num">48</div>
+      <div class="stat-label">Jami test</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">110</div>
+      <div class="stat-label">Assertion</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">0</div>
+      <div class="stat-label">Xato</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">9</div>
+      <div class="stat-label">Bug tuzatildi</div>
+    </div>
+  </div>
+
+  <div class="cards cols-4" style="max-width:860px">
+    <div class="card">
+      <div class="icon">🧮</div>
+      <h4>PenaltyCalculatorTest</h4>
+      <p style="font-size:11px">7 test — Misol 1/2, limit, yaxlitlash, Carbon qoidalari</p>
+    </div>
+    <div class="card">
+      <div class="icon">💳</div>
+      <h4>PaymentServiceTest</h4>
+      <p style="font-size:11px">10 test — 5 tekshiruv, void, partial, concurrent</p>
+    </div>
+    <div class="card">
+      <div class="icon">🛡️</div>
+      <h4>ContractPolicyTest</h4>
+      <p style="font-size:11px">5 test — rol bo'yicha ruxsatlar</p>
+    </div>
+    <div class="card">
+      <div class="icon">⚡</div>
+      <h4>ConcurrentPaymentTest</h4>
+      <p style="font-size:11px">1 test — bir vaqtda 2 to'lov, faqat 1 o'tadi</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 10 – SUMMARY ══════════════════════ -->
+<div class="slide" id="s10">
+  <h2 class="section-title">Xulosa</h2>
+  <h3 class="slide-title">Nima topshirildi</h3>
+
+  <ul class="checklist">
+    <li><span class="ck ck-done">✅</span> Shartnoma CRUD (draft→active→completed), tovar qatorlari, faollashtirish</li>
+    <li><span class="ck ck-done">✅</span> Partiya yetkazish, ortiqcha kiritilsa aniq xato, auto-complete</li>
+    <li><span class="ck ck-done">✅</span> Jarima hisoblash — Misol 1: 37.50 ✓, Misol 2: 35.00 ✓, 50% limit</li>
+    <li><span class="ck ck-done">✅</span> Boshliq jarimani tasdiqlaydi / rad etadi, summa o'zgartiradi</li>
+    <li><span class="ck ck-done">✅</span> Buxgalteriya: 5-tekshiruv, smeta, bosqich holati, to'lov reestri</li>
+    <li><span class="ck ck-done">✅</span> Void pattern — hech narsa o'chirilmaydi</li>
+    <li><span class="ck ck-done">✅</span> Server-side policy (tugma emas) — ijrochi boshqasiniki ko'ra olmaydi</li>
+    <li><span class="ck ck-done">✅</span> lockForUpdate() — concurrent payment testi bilan isbotlangan</li>
+    <li><span class="ck ck-done">✅</span> bcmath — float yo'q, pul hisob-kitobida to'liq aniqlik</li>
+    <li><span class="ck ck-done">✅</span> 48 test · README · ASSUMPTIONS.md (10 qaror) · 4 rol + Super Admin</li>
+  </ul>
+</div>
+
+<!-- ══════════════════════ NAVIGATION ══════════════════════ -->
+<div id="dots"></div>
+
+<div id="nav">
+  <button id="btnPrev" onclick="go(-1)" disabled>←</button>
+  <span class="page-info" id="pageInfo">1 / 10</span>
+  <button id="btnNext" onclick="go(1)">→</button>
+</div>
+
+<div id="hint">← → klavishlar yoki click</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+
+  // Build dots
+  const dotsEl = document.getElementById('dots');
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' on' : '');
+    d.onclick = () => goTo(i);
+    d.style.cursor = 'pointer';
+    dotsEl.appendChild(d);
+  }
+
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+    setTimeout(() => slides[n - 0 < current ? current : current].classList.remove('exit'), 450);
+
+    current = n;
+    slides[current].classList.add('active');
+
+    // update dots
+    dotsEl.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('on', i === current));
+    document.getElementById('pageInfo').textContent = (current + 1) + ' / ' + total;
+    document.getElementById('btnPrev').disabled = current === 0;
+    document.getElementById('btnNext').disabled = current === total - 1;
+  }
+
+  function go(dir) {
+    const next = current + dir;
+    if (next < 0 || next >= total) return;
+
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+    const prev = current;
+    setTimeout(() => slides[prev].classList.remove('exit'), 450);
+
+    current = next;
+    slides[current].classList.add('active');
+
+    dotsEl.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('on', i === current));
+    document.getElementById('pageInfo').textContent = (current + 1) + ' / ' + total;
+    document.getElementById('btnPrev').disabled = current === 0;
+    document.getElementById('btnNext').disabled = current === total - 1;
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   go(-1);
+  });
+</script>
+</body>
+</html>

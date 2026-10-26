@@ -1,0 +1,48 @@
+### Laravel ###
+*.log
+.env
+.env.backup
+.env.production
+/vendor
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/storage/logs
+/storage/framework/cache
+/storage/framework/sessions
+/storage/framework/views
+/storage/app/private
+/bootstrap/cache/*.php
+/storage/framework/testing
+
+### Database ###
+/database/database.sqlite
+/database/database.sqlite-journal
+
+### Tests ###
+.phpunit.result.cache
+/.phpunit.cache
+
+### IDE / OS ###
+.DS_Store
+Thumbs.db
+.phpactor.json
+_ide_helper.php
+_ide_helper_models.php
+/.idea
+/.vscode
+/.cursor/
+/.nova
+/.zed
+/.codex
+
+### Auth ###
+/auth.json
+
+### Misc ###
+Homestead.json
+Homestead.yaml
+/public/fonts-manifest.dev.json
